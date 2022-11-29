@@ -1,5 +1,9 @@
 class BirdsController < ApplicationController
 
+  rescue_from ActiveRecord::RecordNotFound, with: :render_not_found_response
+
+
+
   # GET /birds
   def index
     birds = Bird.all
@@ -13,7 +17,8 @@ class BirdsController < ApplicationController
   end
 
   # GET /birds/:id
-  def show
+
+=begin  def show
     bird = Bird.find_by(id: params[:id])
     if bird
       render json: bird
@@ -21,9 +26,16 @@ class BirdsController < ApplicationController
       render json: { error: "Bird not found" }, status: :not_found
     end
   end
+=end
+def show
+  bird = find_bird
+  render json: bird
+end
+
 
   # PATCH /birds/:id
-  def update
+
+=begin  def update
     bird = Bird.find_by(id: params[:id])
     if bird
       bird.update(bird_params)
@@ -32,9 +44,18 @@ class BirdsController < ApplicationController
       render json: { error: "Bird not found" }, status: :not_found
     end
   end
+=end
+
+def update
+  bird = find_bird
+  bird.update(bird_params)
+  render json: bird
+end
 
   # PATCH /birds/:id/like
-  def increment_likes
+
+
+=begin  def increment_likes
     bird = Bird.find_by(id: params[:id])
     if bird
       bird.update(likes: bird.likes + 1)
@@ -43,9 +64,16 @@ class BirdsController < ApplicationController
       render json: { error: "Bird not found" }, status: :not_found
     end
   end
+=end
+def increment_likes
+  bird = find_bird
+  bird.update(likes: bird.likes + 1)
+  render json: bird
+end
 
   # DELETE /birds/:id
-  def destroy
+
+=begin  def destroy
     bird = Bird.find_by(id: params[:id])
     if bird
       bird.destroy
@@ -54,11 +82,27 @@ class BirdsController < ApplicationController
       render json: { error: "Bird not found" }, status: :not_found
     end
   end
+=end
+
+  def destroy
+    bird = find_bird
+    bird.destroy
+    head :no_content
+  end
+
 
   private
 
+  def find_bird
+    Bird.find(params[:id])
+  end
+
   def bird_params
     params.permit(:name, :species, :likes)
+  end
+
+  def render_not_found_response
+    render json: { error: "Bird not found" }, status: :not_found
   end
 
 end
